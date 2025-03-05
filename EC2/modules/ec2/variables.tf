@@ -12,3 +12,8 @@ variable "instance_name" {
   description = "EC2 instance name"
   type        = string
 }
+
+variable "private_subnet_id" {
+  description = "Private Subnet ID for the EC2 instance"
+  type        = string
+}
