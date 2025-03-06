@@ -1,38 +1,39 @@
-name: Upload Terraform Modules to S3
-
+name: Upload Terraform Config to S3
+ 
 on:
   workflow_dispatch:
-
+    inputs:
+      folder:
+        description: 'Choose Terraform product (EC2,VPC..etc)'
+        required: true
+        type: choice
+        options:
+          - EC2
+          - VPC
 permissions:
-  contents: read
-  id-token: write  
-
+   contents: write
+   id-token: write
 jobs:
-  upload:
+  package-and-upload:
     runs-on: ubuntu-latest
+    env:
+      AWS_REGION: 'us-west-2' 
+      AWS_S3_BUCKET: 'nsh-state-new'  
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4	
-      - name: Archive Terraform modules
+        uses: actions/checkout@v4
+ 
+      - name: Create tar.gz archive
         run: |
-          cd EC2/
-          tar -czvf ec2_module.tar.gz --exclude="*.terraform*" --exclude="*.tfstate*" --exclude="*.backup" *
-          tar -tzvf ec2_module.tar.gz	  
-      - name: Archive Terraform modules
-        run: |
-          cd VPC/
-          tar -czvf vpc_module.tar.gz --exclude="*.terraform*" --exclude="*.tfstate*" --exclude="*.backup" *
-          tar -tzvf vpc_module.tar.gz	  
+          cd ${{ github.event.inputs.folder }}
+          tar -czvf ../${{ github.event.inputs.folder }}.tar.gz .
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
           role-to-assume: arn:aws:iam::183114607892:role/github_actions_oidc
           role-session-name: githubactions
-          aws-region: us-west-2	  
-      - name: Upload archive to S3
+          aws-region: us-west-2
+
+      - name: Upload to S3
         run: |
-          cd EC2/
-          aws s3 cp ec2_module.tar.gz s3://nsh-state-new/
-          cd ..
-          cd VPC/
-          aws s3 cp vpc_module.tar.gz s3://nsh-state-new/
+          aws s3 cp ${{ github.event.inputs.folder }}.tar.gz s3://$AWS_S3_BUCKET/
