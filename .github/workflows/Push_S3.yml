@@ -31,5 +31,7 @@ jobs:
           aws-region: us-west-2	  
       - name: Upload archive to S3
         run: |
+          cd EC2/
           aws s3 cp ec2_module.tar.gz s3://nsh-state-new/
+          cd VPC/
           aws s3 cp vpc_module.tar.gz s3://nsh-state-new/
