@@ -2,7 +2,11 @@ name: Upload Terraform Modules to S3
 
 on:
   workflow_dispatch:
-  
+
+permissions:
+  contents: read
+  id-token: write  
+
 jobs:
   upload:
     runs-on: ubuntu-latest
