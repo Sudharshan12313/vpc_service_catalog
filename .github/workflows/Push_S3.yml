@@ -8,27 +8,23 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
-		
+        uses: actions/checkout@v4	
       - name: Archive Terraform modules
         run: |
           cd EC2/
           tar -czvf ec2_module.tar.gz --exclude="*.terraform*" --exclude="*.tfstate*" --exclude="*.backup" *
-          tar -tzvf ec2_module.tar.gz
-		  
+          tar -tzvf ec2_module.tar.gz	  
       - name: Archive Terraform modules
         run: |
           cd VPC/
           tar -czvf vpc_module.tar.gz --exclude="*.terraform*" --exclude="*.tfstate*" --exclude="*.backup" *
           tar -tzvf vpc_module.tar.gz	  
-		  
       - name: configure aws credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
           role-to-assume: arn:aws:iam::183114607892:role/github_actions_oidc
           role-session-name: githubactions
-          aws-region: us-west-2
-		  
+          aws-region: us-west-2	  
       - name: Upload archive to S3
         run: |
           aws s3 cp ec2_module.tar.gz s3://nsh-state-new/
